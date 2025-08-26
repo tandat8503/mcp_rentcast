@@ -332,25 +332,30 @@ server.tool(
   PropertySearchSchema.shape,
   async (params) => {
     try {
-      console.error('🔍 [search_properties] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams = buildPropertySearchParams(params);
-      console.error('🔍 [search_properties] Built search params:', JSON.stringify(searchParams, null, 2));
       
       const result = await rentcastAPI.searchProperties(searchParams);
-      console.error('🔍 [search_properties] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? (Array.isArray(result.data) ? result.data.length : 'not array') : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error searching properties", result.error);
       }
 
       const properties = result.data as any[];
-      console.error('🔍 [search_properties] First property sample:', JSON.stringify(properties[0], null, 2));
+      
+      // Log API response data for debugging
+      console.log('🔍 [search_properties] API Response:', {
+        success: result.success,
+        dataLength: properties.length,
+        firstProperty: properties[0] ? {
+          id: properties[0].id,
+          address: properties[0].formattedAddress,
+          propertyType: properties[0].propertyType,
+          bedrooms: properties[0].bedrooms,
+          bathrooms: properties[0].bathrooms,
+          squareFootage: properties[0].squareFootage
+        } : 'No properties found',
+        callsRemaining: result.callsRemaining
+      });
       
       const summary = `Found ${properties.length} properties`;
       
@@ -360,13 +365,11 @@ server.tool(
       }).join('\n\n');
 
       const resultText = `${summary}\n\n${propertyDetails}${properties.length > 10 ? '\n\n... and more properties available' : ''}`;
-      console.error('🔍 [search_properties] Tool completed successfully');
       return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [search_properties] Tool error:', error);
-      return createErrorResponse("Failed to search properties", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to search properties", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -377,25 +380,30 @@ server.tool(
   RandomPropertiesSchema.shape,
   async (params) => {
     try {
-      console.error('🎲 [get_random_properties] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams = buildPropertySearchParams(params);
-      console.error('🎲 [get_random_properties] Built search params:', JSON.stringify(searchParams, null, 2));
       
       const result = await rentcastAPI.getRandomProperties(searchParams);
-      console.error('🎲 [get_random_properties] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? (Array.isArray(result.data) ? result.data.length : 'not array') : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting random properties", result.error);
       }
 
       const properties = result.data as any[];
-      console.error('🎲 [get_random_properties] First property sample:', JSON.stringify(properties[0], null, 2));
+      
+      // Log API response data for debugging
+      console.log('🎲 [get_random_properties] API Response:', {
+        success: result.success,
+        dataLength: properties.length,
+        firstProperty: properties[0] ? {
+          id: properties[0].id,
+          address: properties[0].formattedAddress,
+          propertyType: properties[0].propertyType,
+          bedrooms: properties[0].bedrooms,
+          bathrooms: properties[0].bathrooms,
+          squareFootage: properties[0].squareFootage
+        } : 'No properties found',
+        callsRemaining: result.callsRemaining
+      });
       
       const summary = `Retrieved ${properties.length} random properties`;
       
@@ -406,13 +414,11 @@ server.tool(
       }).join('\n\n');
 
       const resultText = `${summary}\n\nSample Properties:\n\n${sampleProperties}${properties.length > 5 ? '\n\n... and more properties available' : ''}`;
-      console.error('🎲 [get_random_properties] Tool completed successfully');
       return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [get_random_properties] Tool error:', error);
-      return createErrorResponse("Failed to get random properties", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to get random properties", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -423,22 +429,12 @@ server.tool(
   MarketAnalysisSchema.shape,
   async (params) => {
     try {
-      console.error('📊 [analyze_market] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams: any = { dataType: params.dataType };
       if (params.zipCode) searchParams.zipCode = params.zipCode;
       if (params.city) searchParams.city = params.city;
       if (params.state) searchParams.state = params.state;
-      
-      console.error('📊 [analyze_market] Built search params:', JSON.stringify(searchParams, null, 2));
 
-      const result = await rentcastAPI.getMarketData(searchParams);
-      console.error('📊 [analyze_market] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? (Array.isArray(result.data) ? result.data.length : 'not array') : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
+            const result = await rentcastAPI.getMarketData(searchParams);
 
       if (!result.success) {
         return createErrorResponse("Error analyzing market", result.error);
@@ -446,38 +442,51 @@ server.tool(
 
       // Simplified market data handling - focus on the structure we know API returns
       const market = Array.isArray(result.data) ? result.data[0] : result.data;
-      console.error('📊 [analyze_market] Market data sample:', JSON.stringify(market, null, 2));
+      
+      // Log API response data for debugging
+      console.log('📊 [analyze_market] API Response:', {
+        success: result.success,
+        dataLength: Array.isArray(result.data) ? result.data.length : 1,
+        marketData: market ? {
+          zipCode: market.zipCode,
+          city: market.city,
+          state: market.state,
+          hasSaleData: !!market.saleData,
+          hasRentalData: !!market.rentalData,
+          saleDataKeys: market.saleData ? Object.keys(market.saleData) : [],
+          rentalDataKeys: market.rentalData ? Object.keys(market.rentalData) : []
+        } : 'No market data found',
+        callsRemaining: result.callsRemaining
+      });
 
-      if (!market || (!market.saleData && !market.rentalData)) {
-        return createErrorResponse("No market data found for the specified location");
-      }
-      
-      let resultText = `📊 Market Statistics for ${market.zipCode ? `ZIP: ${market.zipCode}` : (params.city ? `${params.city}, ${params.state}` : 'Location')}\n`;
-      
-      // Add location info
-      if (market.zipCode) {
-        resultText += `\n📍 Location: ZIP ${market.zipCode}`;
-      }
-      if (market.city && market.state) {
-        resultText += `\n🏙️ ${market.city}, ${market.state}`;
-      }
-      
-      // Format market data
-      if (market.saleData) {
-        resultText += formatSaleMarketData(market.saleData);
-      }
-      
-      if (market.rentalData) {
-        resultText += formatRentalMarketData(market.rentalData);
-      }
-      
-      console.error('📊 [analyze_market] Tool completed successfully');
-      return createSuccessResponse(resultText);
+        if (!market || (!market.saleData && !market.rentalData)) {
+          return createErrorResponse("No market data found for the specified location");
+        }
+        
+        let resultText = `📊 Market Statistics for ${market.zipCode ? `ZIP: ${market.zipCode}` : (params.city ? `${params.city}, ${params.state}` : 'Location')}\n`;
+        
+        // Add location info
+        if (market.zipCode) {
+          resultText += `\n📍 Location: ZIP ${market.zipCode}`;
+        }
+        if (market.city && market.state) {
+          resultText += `\n🏙️ ${market.city}, ${market.state}`;
+        }
+        
+        // Format market data
+        if (market.saleData) {
+          resultText += formatSaleMarketData(market.saleData);
+        }
+        
+        if (market.rentalData) {
+          resultText += formatRentalMarketData(market.rentalData);
+        }
+        
+        return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [analyze_market] Tool error:', error);
-      return createErrorResponse("Failed to analyze market", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to analyze market", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -488,10 +497,7 @@ server.tool(
   AVMSchema.shape,
   async (params: z.infer<typeof AVMSchema>) => {
     try {
-      console.error('💰 [get_property_value] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams = buildAVMSearchParams(params);
-      console.error('💰 [get_property_value] Built search params:', JSON.stringify(searchParams, null, 2));
 
       // Additional validation to ensure we have required parameters
       if (!searchParams.propertyId && !searchParams.address && (!searchParams.latitude || !searchParams.longitude)) {
@@ -514,12 +520,6 @@ server.tool(
       }
 
       const result = await rentcastAPI.getPropertyValue(searchParams);
-      console.error('💰 [get_property_value] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? 'has data' : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting property value", result.error);
@@ -530,8 +530,19 @@ server.tool(
         return createErrorResponse("No property value data found");
       }
       
-      console.error('💰 [get_property_value] AVM data sample:', JSON.stringify(avm, null, 2));
-
+      // Log API response data for debugging
+      console.log('💰 [get_property_value] API Response:', {
+        success: result.success,
+        avmData: avm ? {
+          price: avm.price,
+          priceRangeLow: avm.priceRangeLow,
+          priceRangeHigh: avm.priceRangeHigh,
+          hasComparables: !!(avm.comparables && avm.comparables.length > 0),
+          comparablesCount: avm.comparables ? avm.comparables.length : 0
+        } : 'No AVM data found',
+        callsRemaining: result.callsRemaining
+      });
+      
       let resultText = `💰 Estimated Value: ${avm.price ? `$${Number(avm.price).toLocaleString()}` : 'N/A'}`;
       const range = avm.priceRangeLow && avm.priceRangeHigh 
         ? ` (Range: $${Number(avm.priceRangeLow).toLocaleString()} - $${Number(avm.priceRangeHigh).toLocaleString()})`
@@ -542,13 +553,11 @@ server.tool(
         resultText += formatComparables(avm.comparables);
       }
       
-      console.error('💰 [get_property_value] Tool completed successfully');
       return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [get_property_value] Tool error:', error);
-      return createErrorResponse("Failed to get property value", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to get property value", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -559,11 +568,8 @@ server.tool(
   RentEstimateSchema.shape,
   async (params: z.infer<typeof RentEstimateSchema>) => {
     try {
-      console.error('🏠 [get_rent_estimates] Tool called with params:', JSON.stringify(params, null, 2));
-      
       // Validate parameters using Zod schema
       const validatedParams = RentEstimateSchema.parse(params);
-      console.error('🏠 [get_rent_estimates] Validated params:', JSON.stringify(validatedParams, null, 2));
       
       // Build search parameters for rent estimates
       const searchParams: Record<string, any> = {};
@@ -576,8 +582,6 @@ server.tool(
       if (validatedParams.bedrooms) searchParams.bedrooms = validatedParams.bedrooms;
       if (validatedParams.bathrooms) searchParams.bathrooms = validatedParams.bathrooms;
       if (validatedParams.squareFootage) searchParams.squareFootage = validatedParams.squareFootage;
-      
-      console.error('🏠 [get_rent_estimates] Built search params:', JSON.stringify(searchParams, null, 2));
 
       // Additional validation to ensure we have required parameters
       if (!searchParams.propertyId && !searchParams.address && (!searchParams.latitude || !searchParams.longitude)) {
@@ -610,12 +614,6 @@ server.tool(
       }
 
       const result = await rentcastAPI.getRentEstimates(searchParams);
-      console.error('🏠 [get_rent_estimates] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? 'has data' : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting rent estimates", result.error);
@@ -626,7 +624,23 @@ server.tool(
         return createErrorResponse("No rent estimate data found");
       }
       
-      console.error('🏠 [get_rent_estimates] Rent data sample:', JSON.stringify(rentData, null, 2));
+      // Log API response data for debugging
+      console.log('🏠 [get_rent_estimates] API Response:', {
+        success: result.success,
+        rentData: rentData ? {
+          address: rentData.address,
+          propertyType: rentData.propertyType,
+          bedrooms: rentData.bedrooms,
+          bathrooms: rentData.bathrooms,
+          squareFootage: rentData.squareFootage,
+          rent: rentData.rent,
+          rentRangeLow: rentData.rentRangeLow,
+          rentRangeHigh: rentData.rentRangeHigh,
+          hasComparables: !!(rentData.comparables && rentData.comparables.length > 0),
+          comparablesCount: rentData.comparables ? rentData.comparables.length : 0
+        } : 'No rent data found',
+        callsRemaining: result.callsRemaining
+      });
 
       // Format the response
       let resultText = `🏠 **Rent Estimate Results**\n\n`;
@@ -686,16 +700,13 @@ server.tool(
       resultText += `• Use \`analyze_market\` to understand rental market trends\n\n`;
       resultText += `📊 **API Usage:** This request used 1 of your ${config.maxApiCalls} available API calls.`;
       
-      console.error('🏠 [get_rent_estimates] Tool completed successfully');
       return createSuccessResponse(resultText);
 
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorDetails = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-        console.error('❌ [get_rent_estimates] Validation error:', errorDetails);
         return createErrorResponse(`Invalid parameters: ${errorDetails}`);
       }
-      console.error('❌ [get_rent_estimates] Tool error:', error);
       return createErrorResponse("Failed to get rent estimates", error instanceof Error ? error.message : 'Unknown error');
     }
   }
@@ -708,25 +719,32 @@ server.tool(
   ListingSearchSchema.shape,
   async (params) => {
     try {
-      console.error('🏠 [get_sale_listings] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams = buildPropertySearchParams(params);
-      console.error('🏠 [get_sale_listings] Built search params:', JSON.stringify(searchParams, null, 2));
 
       const result = await rentcastAPI.getSaleListings(searchParams);
-      console.error('🏠 [get_sale_listings] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? (Array.isArray(result.data) ? result.data.length : 'not array') : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting sale listings", result.error);
       }
 
       const listings = result.data as any[];
-      console.error('🏠 [get_sale_listings] First listing sample:', JSON.stringify(listings[0], null, 2));
+      
+      // Log API response data for debugging
+      console.log('🏠 [get_sale_listings] API Response:', {
+        success: result.success,
+        dataLength: listings.length,
+        firstListing: listings[0] ? {
+          id: listings[0].id,
+          address: listings[0].formattedAddress,
+          propertyType: listings[0].propertyType,
+          price: listings[0].price,
+          status: listings[0].status,
+          bedrooms: listings[0].bedrooms,
+          bathrooms: listings[0].bathrooms,
+          squareFootage: listings[0].squareFootage
+        } : 'No listings found',
+        callsRemaining: result.callsRemaining
+      });
       
       const summary = `Found ${listings.length} sale listings`;
       
@@ -735,21 +753,18 @@ server.tool(
         // Use actual Rentcast API data structure
         const propertyInfo = formatPropertyInfo(listing);
         
-        // Add property value estimation suggestion with copy-paste ready parameters
-        const valueEstimationInfo = createPropertyValueParams(listing, listing.price);
-        const rentEstimationInfo = createRentEstimationParams(listing);
+        // Add compact parameter suggestions
+        const params = `\n💡 **Quick Parameters:** Address: "${listing.formattedAddress}", Lat: ${listing.latitude}, Lng: ${listing.longitude}, Type: "${listing.propertyType}", Beds: ${listing.bedrooms || 'N/A'}, Baths: ${listing.bathrooms || 'N/A'}, SqFt: ${listing.squareFootage || 'N/A'}`;
         
-        return propertyInfo + valueEstimationInfo + rentEstimationInfo;
+        return propertyInfo + params;
       }).join('\n\n');
 
       const resultText = `${summary}\n\n${listingDetails}${listings.length > 8 ? '\n\n... and more listings available' : ''}`;
-      console.error('🏠 [get_sale_listings] Tool completed successfully');
       return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [get_sale_listings] Tool error:', error);
-      return createErrorResponse("Failed to get sale listings", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to get sale listings", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -760,16 +775,8 @@ server.tool(
   PropertyDetailSchema.shape,
   async (params) => {
     try {
-      console.error('🏠 [get_property_details] Tool called with params:', JSON.stringify(params, null, 2));
-      
       // This tool helps prepare property data for other tools
       const result = await rentcastAPI.getProperty(params.id);
-      console.error('🏠 [get_property_details] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? 'has data' : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting property details", result.error);
@@ -780,7 +787,23 @@ server.tool(
         return createErrorResponse("No property details found");
       }
       
-      console.error('🏠 [get_property_details] Property data sample:', JSON.stringify(property, null, 2));
+      // Log API response data for debugging
+      console.log('🏠 [get_property_details] API Response:', {
+        success: result.success,
+        propertyData: property ? {
+          id: property.id,
+          address: property.formattedAddress,
+          propertyType: property.propertyType,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          squareFootage: property.squareFootage,
+          lastSalePrice: property.lastSalePrice,
+          lastSaleDate: property.lastSaleDate,
+          hasHistory: !!(property.history && Object.keys(property.history).length > 0),
+          historyKeys: property.history ? Object.keys(property.history) : []
+        } : 'No property data found',
+        callsRemaining: result.callsRemaining
+      });
 
       // Format property details
       const propertyInfo = formatPropertyInfo(property);
@@ -795,13 +818,11 @@ server.tool(
         `💡 **Copy these values to the get_rent_estimates tool to get rent estimates!**`;
 
       const resultText = propertyInfo + valueEstimationParams + additionalInfo;
-      console.error('🏠 [get_property_details] Tool completed successfully');
       return createSuccessResponse(resultText);
 
-    } catch (error) {
-      console.error('❌ [get_property_details] Tool error:', error);
-      return createErrorResponse("Failed to get property details", error instanceof Error ? error.message : 'Unknown error');
-    }
+          } catch (error) {
+        return createErrorResponse("Failed to get property details", error instanceof Error ? error.message : 'Unknown error');
+      }
   }
 );
 
@@ -812,25 +833,32 @@ server.tool(
   ListingSearchSchema.shape,
   async (params) => {
     try {
-      console.error('🏘️ [get_rental_listings] Tool called with params:', JSON.stringify(params, null, 2));
-      
       const searchParams = buildPropertySearchParams(params);
-      console.error('🏘️ [get_rental_listings] Built search params:', JSON.stringify(searchParams, null, 2));
 
       const result = await rentcastAPI.getRentalListings(searchParams);
-      console.error('🏘️ [get_rental_listings] API result:', JSON.stringify({
-        success: result.success,
-        error: result.error,
-        dataLength: result.data ? (Array.isArray(result.data) ? result.data.length : 'not array') : 'no data',
-        callsRemaining: result.callsRemaining
-      }, null, 2));
 
       if (!result.success) {
         return createErrorResponse("Error getting rental listings", result.error);
       }
 
       const listings = result.data as any[];
-      console.error('🏘️ [get_rental_listings] First listing sample:', JSON.stringify(listings[0], null, 2));
+      
+      // Log API response data for debugging
+      console.log('🏘️ [get_rental_listings] API Response:', {
+        success: result.success,
+        dataLength: listings.length,
+        firstListing: listings[0] ? {
+          id: listings[0].id,
+          address: listings[0].formattedAddress,
+          propertyType: listings[0].propertyType,
+          price: listings[0].price,
+          status: listings[0].status,
+          bedrooms: listings[0].bedrooms,
+          bathrooms: listings[0].bathrooms,
+          squareFootage: listings[0].squareFootage
+        } : 'No listings found',
+        callsRemaining: result.callsRemaining
+      });
       
       const summary = `Found ${listings.length} rental listings`;
       
@@ -839,18 +867,16 @@ server.tool(
         // Use actual Rentcast API data structure
         const propertyInfo = formatPropertyInfo(listing);
         
-        // Add rent estimation suggestion with copy-paste ready parameters
-        const rentEstimationInfo = createRentEstimationParams(listing, listing.price);
+        // Add compact parameter suggestions
+        const params = `\n💡 **Quick Parameters:** Address: "${listing.formattedAddress}", Lat: ${listing.latitude}, Lng: ${listing.longitude}, Type: "${listing.propertyType}", Beds: ${listing.bedrooms || 'N/A'}, Baths: ${listing.bathrooms || 'N/A'}, SqFt: ${listing.squareFootage || 'N/A'}`;
         
-        return propertyInfo + rentEstimationInfo;
+        return propertyInfo + params;
       }).join('\n\n');
 
       const resultText = `${summary}\n\n${listingDetails}${listings.length > 8 ? '\n\n... and more listings available' : ''}`;
-      console.error('🏘️ [get_rental_listings] Tool completed successfully');
       return createSuccessResponse(resultText);
 
     } catch (error) {
-      console.error('❌ [get_rental_listings] Tool error:', error);
       return createErrorResponse("Failed to get rental listings", error instanceof Error ? error.message : 'Unknown error');
     }
   }
