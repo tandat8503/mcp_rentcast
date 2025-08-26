@@ -24,7 +24,7 @@ A Model Context Protocol (MCP) server that provides access to Rentcast Real Esta
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/tandat8503/mcp_rentcast.git
 cd mcp_rentcast
 
 # Install dependencies
