@@ -245,7 +245,7 @@ function buildAVMSearchParams(params: any): any {
   if (params.bathrooms !== undefined && params.bathrooms !== null) searchParams.bathrooms = params.bathrooms;
   if (params.squareFootage !== undefined && params.squareFootage !== null) searchParams.squareFootage = params.squareFootage;
   
-  // Debug logging - removed for MCP compatibility
+  
   
   return searchParams;
 }
@@ -633,7 +633,7 @@ server.tool(
       resultText += `• Use \`get_property_details\` to get comprehensive property information\n`;
       resultText += `• Use \`get_rental_listings\` to see actual rental listings in the area\n`;
       resultText += `• Use \`analyze_market\` to understand rental market trends\n\n`;
-      resultText += `📊 **API Usage:** This request used 1 of your ${config.maxApiCalls} available API calls.`;
+
       
       return createSuccessResponse(resultText);
 

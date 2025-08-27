@@ -36,29 +36,7 @@ export class ConfigService {
         "https://api.rentcast.io/v1",
       ),
 
-      // MCP Server Configuration
-      maxApiCalls: this.getNumberEnv("MAX_API_CALLS_PER_SESSION", 40),
-      batchSize: this.getNumberEnv("BATCH_SIZE", 5),
-      cacheDuration: this.getNumberEnv("CACHE_DURATION_HOURS", 24),
-      enableFallbackData: this.getBoolEnv("ENABLE_FALLBACK_DATA", true),
-      delayBetweenCalls: this.getNumberEnv("DELAY_BETWEEN_CALLS", 0.1),
 
-      // Security & Rate Limiting
-      enableRateLimiting: this.getBoolEnv("ENABLE_RATE_LIMITING", true),
-      rateLimitPerMinute: this.getNumberEnv("RATE_LIMIT_PER_MINUTE", 60),
-      enableIdempotency: this.getBoolEnv("ENABLE_IDEMPOTENCY", true),
-
-      // Advanced Optimization
-      optimizationStrategy: this.getEnv(
-        "OPTIMIZATION_STRATEGY",
-        "comprehensive_40_calls",
-      ),
-      enableSmartCaching: this.getBoolEnv("ENABLE_SMART_CACHING", true),
-      enableDataMaximization: this.getBoolEnv("ENABLE_DATA_MAXIMIZATION", true),
-
-      // Logging & Development
-      logLevel: this.getEnv("LOG_LEVEL", "INFO"),
-      debug: this.getBoolEnv("DEBUG", false),
       timeoutSeconds: this.getNumberEnv("TIMEOUT_SECONDS", 30),
     };
   }
@@ -105,33 +83,7 @@ export class ConfigService {
     return this.config.rentcastBaseUrl;
   }
 
-  public get maxApiCalls(): number {
-    return this.config.maxApiCalls;
-  }
 
-  public get batchSize(): number {
-    return this.config.batchSize;
-  }
-
-  public get enableRateLimiting(): boolean {
-    return this.config.enableRateLimiting;
-  }
-
-  public get rateLimitPerMinute(): number {
-    return this.config.rateLimitPerMinute;
-  }
-
-  public get enableIdempotency(): boolean {
-    return this.config.enableIdempotency;
-  }
-
-  public get optimizationStrategy(): string {
-    return this.config.optimizationStrategy;
-  }
-
-  public get debug(): boolean {
-    return this.config.debug;
-  }
 
   public get timeoutSeconds(): number {
     return this.config.timeoutSeconds;

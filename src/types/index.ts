@@ -422,29 +422,10 @@ export const RENTCAST_ENDPOINTS: Record<string, EndpointConfig> = {
 export interface ServerConfig {
   rentcastApiKey: string;
   rentcastBaseUrl: string;
-  maxApiCalls: number;
-  batchSize: number;
-  cacheDuration: number;
-  enableFallbackData: boolean;
-  delayBetweenCalls: number;
-  enableRateLimiting: boolean;
-  rateLimitPerMinute: number;
-  enableIdempotency: boolean;
-  optimizationStrategy: string;
-  enableSmartCaching: boolean;
-  enableDataMaximization: boolean;
-  logLevel: string;
-  debug: boolean;
   timeoutSeconds: number;
 }
 
-export interface OptimizationStrategy {
-  name: string;
-  description: string;
-  endpoints: string[];
-  maxCalls: number;
-  priority: "high" | "medium" | "low";
-}
+
 
 export interface ApiCallResult {
   success: boolean;

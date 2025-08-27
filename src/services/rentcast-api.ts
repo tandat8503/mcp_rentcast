@@ -16,7 +16,7 @@ export class RentcastAPIService {
   private baseUrl: string;
   private timeout: number;
 
-  private lastCallTime: number = 0;
+
 
   constructor() {
     this.apiKey = config.rentcastApiKey;
@@ -35,16 +35,7 @@ export class RentcastAPIService {
     try {
 
 
-      // Rate limiting
-      if (config.enableRateLimiting) {
-        const now = Date.now();
-        const timeSinceLastCall = now - this.lastCallTime;
-        const minInterval = (60 * 1000) / config.rateLimitPerMinute;
 
-        if (timeSinceLastCall < minInterval) {
-          await this.delay(minInterval - timeSinceLastCall);
-        }
-      }
 
       // Build URL with parameters
       const url = new URL(`${this.baseUrl}${endpoint}`);
@@ -65,7 +56,7 @@ export class RentcastAPIService {
         signal: AbortSignal.timeout(this.timeout),
       });
 
-      this.lastCallTime = Date.now();
+
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -270,12 +261,7 @@ export class RentcastAPIService {
 
 
 
-  /**
-   * Delay function for rate limiting
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+
 }
 
 // Export singleton instance
