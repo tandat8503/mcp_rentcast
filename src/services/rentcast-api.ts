@@ -1,11 +1,11 @@
-import { config } from "./config";
+import { config } from "./config.js";
 import {
   RentcastProperty,
   RentcastMarket,
   RentcastListing,
   RentcastAVM,
   ApiCallResult,
-} from "../types/index";
+} from "../types/index.js";
 
 /**
  * Rentcast API Service
@@ -15,14 +15,14 @@ export class RentcastAPIService {
   private apiKey: string;
   private baseUrl: string;
   private timeout: number;
-  private callsRemaining: number;
+
   private lastCallTime: number = 0;
 
   constructor() {
     this.apiKey = config.rentcastApiKey;
     this.baseUrl = config.rentcastBaseUrl;
     this.timeout = config.timeoutSeconds * 1000;
-    this.callsRemaining = config.maxApiCalls;
+
   }
 
   /**
@@ -33,16 +33,7 @@ export class RentcastAPIService {
     params: Record<string, any> = {},
   ): Promise<ApiCallResult> {
     try {
-      // Check if we have API calls remaining
-      if (this.callsRemaining <= 0) {
-        return {
-          success: false,
-          error: "API call limit exceeded",
-          endpoint,
-          timestamp: Date.now(),
-          callsRemaining: 0,
-        };
-      }
+
 
       // Rate limiting
       if (config.enableRateLimiting) {
@@ -75,7 +66,6 @@ export class RentcastAPIService {
       });
 
       this.lastCallTime = Date.now();
-      this.callsRemaining--;
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -84,7 +74,6 @@ export class RentcastAPIService {
           error: `API Error ${response.status}: ${errorText}`,
           endpoint,
           timestamp: Date.now(),
-          callsRemaining: this.callsRemaining,
         };
       }
 
@@ -95,7 +84,6 @@ export class RentcastAPIService {
         data,
         endpoint,
         timestamp: Date.now(),
-        callsRemaining: this.callsRemaining,
       };
     } catch (error) {
       return {
@@ -103,7 +91,6 @@ export class RentcastAPIService {
         error: error instanceof Error ? error.message : "Unknown error",
         endpoint,
         timestamp: Date.now(),
-        callsRemaining: this.callsRemaining,
       };
     }
   }
@@ -279,26 +266,9 @@ export class RentcastAPIService {
     return result;
   }
 
-  /**
-   * Get server status and remaining API calls
-   */
-  getStatus() {
-    return {
-      callsRemaining: this.callsRemaining,
-      maxCalls: config.maxApiCalls,
-      lastCallTime: this.lastCallTime,
-      rateLimitEnabled: config.enableRateLimiting,
-      rateLimitPerMinute: config.rateLimitPerMinute,
-    };
-  }
 
-  /**
-   * Reset API call counter (for testing purposes)
-   */
-  resetCallCounter() {
-    this.callsRemaining = config.maxApiCalls;
-    this.lastCallTime = 0;
-  }
+
+
 
   /**
    * Delay function for rate limiting

@@ -452,7 +452,6 @@ export interface ApiCallResult {
   error?: string;
   endpoint: string;
   timestamp: number;
-  callsRemaining: number;
 }
 
 // ========================================

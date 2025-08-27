@@ -6,6 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "allowImportingTsExtensions": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
