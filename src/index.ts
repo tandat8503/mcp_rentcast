@@ -2,8 +2,8 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { config } from './services/config.js';
-import { rentcastAPI } from './services/rentcast-api.js';
+import { config } from './services/config';
+import { rentcastAPI } from './services/rentcast-api';
 import {
   PropertySearchSchema,
   RandomPropertiesSchema,
@@ -14,7 +14,7 @@ import {
   RentEstimateSchema,
   RentEstimateResponse,
   ListingTypeSchema
-} from './types/index.js';
+} from './types/index';
 import { z } from 'zod';
 
 // ========================================

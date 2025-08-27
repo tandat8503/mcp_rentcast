@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { ServerConfig } from "../types/index.js";
+import { ServerConfig } from "../types/index";
 
 // Load environment variables
 dotenv.config();

@@ -1,11 +1,11 @@
-import { config } from "./config.js";
+import { config } from "./config";
 import {
   RentcastProperty,
   RentcastMarket,
   RentcastListing,
   RentcastAVM,
   ApiCallResult,
-} from "../types/index.js";
+} from "../types/index";
 
 /**
  * Rentcast API Service
