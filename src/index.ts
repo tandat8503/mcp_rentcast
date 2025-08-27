@@ -88,13 +88,13 @@ function formatPropertyInfo(prop: any): string {
   // Additional details with safe checking
   const lotSize = prop.lotSize != null ? ` | 🌳 ${Number(prop.lotSize).toLocaleString()} sqft lot` : '';
   const yearBuilt = prop.yearBuilt != null ? ` | 📅 ${prop.yearBuilt} built` : '';
-  const lastSaleDate = prop.lastSaleDate ? ` | 🗓️ ${prop.lastSaleDate.split('T')[0]} last sale` : '';
-  const status = prop.status ? ` | 📊 ${prop.status}` : '';
-  const daysOnMarket = prop.daysOnMarket != null ? ` | ⏱️ ${prop.daysOnMarket} days on market` : '';
-  const propertyType = prop.propertyType ? ` | 🏠 ${prop.propertyType}` : '';
+  const lastSaleDate = prop.lastSaleDate ? ` | Date: ${prop.lastSaleDate.split('T')[0]} last sale` : '';
+  const status = prop.status ? ` | Status: ${prop.status}` : '';
+  const daysOnMarket = prop.daysOnMarket != null ? ` | Days: ${prop.daysOnMarket} days on market` : '';
+  const propertyType = prop.propertyType ? ` | Type: ${prop.propertyType}` : '';
   
   // Build comprehensive property info
-  let propertyInfo = `📍 ${address}\n💰 ${priceDisplay}${priceType} | 🛏️ ${beds} | 🚿 ${baths} | 📐 ${sqft}`;
+  let propertyInfo = `Address: ${address}\nPrice: ${priceDisplay}${priceType} | Beds: ${beds} | Baths: ${baths} | SqFt: ${sqft}`;
   
   // Add optional details
   if (lotSize || yearBuilt || lastSaleDate || status || daysOnMarket || propertyType) {
@@ -110,11 +110,11 @@ function formatPropertyInfo(prop: any): string {
 function formatSaleMarketData(saleData: any): string {
   if (!saleData) return '';
   
-  let result = `\n🏠 Sales Market:`;
+  let result = `\nSales Market:`;
   
   // Current month data
   if (saleData.averagePrice !== undefined) {
-    result += `\n💰 Average Price: $${Number(saleData.averagePrice).toLocaleString()}`;
+    result += `\nAverage Price: $${Number(saleData.averagePrice).toLocaleString()}`;
   }
   if (saleData.medianPrice !== undefined) {
     result += `\n📈 Median Price: $${Number(saleData.medianPrice).toLocaleString()}`;
@@ -123,7 +123,7 @@ function formatSaleMarketData(saleData: any): string {
     result += `\n📐 Avg Price/Sqft: $${Number(saleData.averagePricePerSquareFoot).toFixed(2)}`;
   }
   if (saleData.averageDaysOnMarket !== undefined) {
-    result += `\n⏱️ Avg Days on Market: ${Number(saleData.averageDaysOnMarket).toFixed(1)}`;
+    result += `\nAvg Days on Market: ${Number(saleData.averageDaysOnMarket).toFixed(1)}`;
   }
   if (saleData.newListings !== undefined) {
     result += `\n🆕 New Listings: ${saleData.newListings}`;
@@ -343,19 +343,7 @@ server.tool(
       const properties = result.data as any[];
       
       // Log API response data for debugging
-      console.log('🔍 [search_properties] API Response:', {
-        success: result.success,
-        dataLength: properties.length,
-        firstProperty: properties[0] ? {
-          id: properties[0].id,
-          address: properties[0].formattedAddress,
-          propertyType: properties[0].propertyType,
-          bedrooms: properties[0].bedrooms,
-          bathrooms: properties[0].bathrooms,
-          squareFootage: properties[0].squareFootage
-        } : 'No properties found',
-        callsRemaining: result.callsRemaining
-      });
+
       
       const summary = `Found ${properties.length} properties`;
       
@@ -391,19 +379,7 @@ server.tool(
       const properties = result.data as any[];
       
       // Log API response data for debugging
-      console.log('🎲 [get_random_properties] API Response:', {
-        success: result.success,
-        dataLength: properties.length,
-        firstProperty: properties[0] ? {
-          id: properties[0].id,
-          address: properties[0].formattedAddress,
-          propertyType: properties[0].propertyType,
-          bedrooms: properties[0].bedrooms,
-          bathrooms: properties[0].bathrooms,
-          squareFootage: properties[0].squareFootage
-        } : 'No properties found',
-        callsRemaining: result.callsRemaining
-      });
+
       
       const summary = `Retrieved ${properties.length} random properties`;
       
@@ -443,21 +419,7 @@ server.tool(
       // Simplified market data handling - focus on the structure we know API returns
       const market = Array.isArray(result.data) ? result.data[0] : result.data;
       
-      // Log API response data for debugging
-      console.log('📊 [analyze_market] API Response:', {
-        success: result.success,
-        dataLength: Array.isArray(result.data) ? result.data.length : 1,
-        marketData: market ? {
-          zipCode: market.zipCode,
-          city: market.city,
-          state: market.state,
-          hasSaleData: !!market.saleData,
-          hasRentalData: !!market.rentalData,
-          saleDataKeys: market.saleData ? Object.keys(market.saleData) : [],
-          rentalDataKeys: market.rentalData ? Object.keys(market.rentalData) : []
-        } : 'No market data found',
-        callsRemaining: result.callsRemaining
-      });
+
 
         if (!market || (!market.saleData && !market.rentalData)) {
           return createErrorResponse("No market data found for the specified location");
@@ -530,18 +492,7 @@ server.tool(
         return createErrorResponse("No property value data found");
       }
       
-      // Log API response data for debugging
-      console.log('💰 [get_property_value] API Response:', {
-        success: result.success,
-        avmData: avm ? {
-          price: avm.price,
-          priceRangeLow: avm.priceRangeLow,
-          priceRangeHigh: avm.priceRangeHigh,
-          hasComparables: !!(avm.comparables && avm.comparables.length > 0),
-          comparablesCount: avm.comparables ? avm.comparables.length : 0
-        } : 'No AVM data found',
-        callsRemaining: result.callsRemaining
-      });
+
       
       let resultText = `💰 Estimated Value: ${avm.price ? `$${Number(avm.price).toLocaleString()}` : 'N/A'}`;
       const range = avm.priceRangeLow && avm.priceRangeHigh 
@@ -624,23 +575,7 @@ server.tool(
         return createErrorResponse("No rent estimate data found");
       }
       
-      // Log API response data for debugging
-      console.log('🏠 [get_rent_estimates] API Response:', {
-        success: result.success,
-        rentData: rentData ? {
-          address: rentData.address,
-          propertyType: rentData.propertyType,
-          bedrooms: rentData.bedrooms,
-          bathrooms: rentData.bathrooms,
-          squareFootage: rentData.squareFootage,
-          rent: rentData.rent,
-          rentRangeLow: rentData.rentRangeLow,
-          rentRangeHigh: rentData.rentRangeHigh,
-          hasComparables: !!(rentData.comparables && rentData.comparables.length > 0),
-          comparablesCount: rentData.comparables ? rentData.comparables.length : 0
-        } : 'No rent data found',
-        callsRemaining: result.callsRemaining
-      });
+
 
       // Format the response
       let resultText = `🏠 **Rent Estimate Results**\n\n`;
@@ -729,22 +664,7 @@ server.tool(
 
       const listings = result.data as any[];
       
-      // Log API response data for debugging
-      console.log('🏠 [get_sale_listings] API Response:', {
-        success: result.success,
-        dataLength: listings.length,
-        firstListing: listings[0] ? {
-          id: listings[0].id,
-          address: listings[0].formattedAddress,
-          propertyType: listings[0].propertyType,
-          price: listings[0].price,
-          status: listings[0].status,
-          bedrooms: listings[0].bedrooms,
-          bathrooms: listings[0].bathrooms,
-          squareFootage: listings[0].squareFootage
-        } : 'No listings found',
-        callsRemaining: result.callsRemaining
-      });
+
       
       const summary = `Found ${listings.length} sale listings`;
       
@@ -787,23 +707,7 @@ server.tool(
         return createErrorResponse("No property details found");
       }
       
-      // Log API response data for debugging
-      console.log('🏠 [get_property_details] API Response:', {
-        success: result.success,
-        propertyData: property ? {
-          id: property.id,
-          address: property.formattedAddress,
-          propertyType: property.propertyType,
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          squareFootage: property.squareFootage,
-          lastSalePrice: property.lastSalePrice,
-          lastSaleDate: property.lastSaleDate,
-          hasHistory: !!(property.history && Object.keys(property.history).length > 0),
-          historyKeys: property.history ? Object.keys(property.history) : []
-        } : 'No property data found',
-        callsRemaining: result.callsRemaining
-      });
+
 
       // Format property details
       const propertyInfo = formatPropertyInfo(property);
@@ -843,22 +747,7 @@ server.tool(
 
       const listings = result.data as any[];
       
-      // Log API response data for debugging
-      console.log('🏘️ [get_rental_listings] API Response:', {
-        success: result.success,
-        dataLength: listings.length,
-        firstListing: listings[0] ? {
-          id: listings[0].id,
-          address: listings[0].formattedAddress,
-          propertyType: listings[0].propertyType,
-          price: listings[0].price,
-          status: listings[0].status,
-          bedrooms: listings[0].bedrooms,
-          bathrooms: listings[0].bathrooms,
-          squareFootage: listings[0].squareFootage
-        } : 'No listings found',
-        callsRemaining: result.callsRemaining
-      });
+
       
       const summary = `Found ${listings.length} rental listings`;
       
@@ -924,36 +813,23 @@ server.tool(
 
 async function main() {
   try {
-    console.error('🚀 Starting Rentcast MCP Server...');
-    console.error(`📊 API Calls Limit: ${config.maxApiCalls}`);
-    console.error(`🔑 API Key: ${config.rentcastApiKey.substring(0, 8)}...`);
-    console.error(`🌐 Base URL: ${config.rentcastBaseUrl}`);
-    
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    
-    console.error('✅ Rentcast MCP Server started successfully!');
-    console.error('🛠️ Available tools: search_properties, get_random_properties, analyze_market, get_property_value, get_rent_estimates, get_sale_listings, get_rental_listings, get_property_details, get_server_status');
-    
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
 
 // Handle process termination
 process.on('SIGINT', () => {
-  console.error('\n🛑 Shutting down Rentcast MCP Server...');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.error('\n🛑 Shutting down Rentcast MCP Server...');
   process.exit(0);
 });
 
 // Start the server
 main().catch((error) => {
-  console.error('❌ Server error:', error);
   process.exit(1);
 });
