@@ -332,9 +332,13 @@ server.tool(
   PropertySearchSchema.shape,
   async (params) => {
     try {
-      const searchParams = buildPropertySearchParams(params);
-      
-      const result = await rentcastAPI.searchProperties(searchParams);
+              const searchParams = buildPropertySearchParams(params);
+        
+        // Debug logging to stderr (doesn't interfere with MCP protocol)
+        console.error('[search_properties] Tool called with params:', JSON.stringify(params, null, 2));
+        console.error('[search_properties] Built search params:', JSON.stringify(searchParams, null, 2));
+        
+        const result = await rentcastAPI.searchProperties(searchParams);
 
       if (!result.success) {
         return createErrorResponse("Error searching properties", result.error);
@@ -342,8 +346,21 @@ server.tool(
 
       const properties = result.data as any[];
       
-      // Log API response data for debugging
-
+      // Debug logging to stderr
+      console.error('[search_properties] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        dataLength: properties.length,
+        firstProperty: properties[0] ? {
+          id: properties[0].id,
+          address: properties[0].formattedAddress,
+          propertyType: properties[0].propertyType,
+          bedrooms: properties[0].bedrooms,
+          bathrooms: properties[0].bathrooms,
+          squareFootage: properties[0].squareFootage
+        } : 'No properties found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
       
       const summary = `Found ${properties.length} properties`;
       
@@ -378,8 +395,21 @@ server.tool(
 
       const properties = result.data as any[];
       
-      // Log API response data for debugging
-
+      // Debug logging to stderr
+      console.error('[get_random_properties] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        dataLength: properties.length,
+        firstProperty: properties[0] ? {
+          id: properties[0].id,
+          address: properties[0].formattedAddress,
+          propertyType: properties[0].propertyType,
+          bedrooms: properties[0].bedrooms,
+          bathrooms: properties[0].bathrooms,
+          squareFootage: properties[0].squareFootage
+        } : 'No properties found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
       
       const summary = `Retrieved ${properties.length} random properties`;
       
@@ -419,7 +449,22 @@ server.tool(
       // Simplified market data handling - focus on the structure we know API returns
       const market = Array.isArray(result.data) ? result.data[0] : result.data;
       
-
+      // Debug logging to stderr
+      console.error('[analyze_market] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        dataLength: Array.isArray(result.data) ? result.data.length : 1,
+        marketData: market ? {
+          zipCode: market.zipCode,
+          city: market.city,
+          state: market.state,
+          hasSaleData: !!market.saleData,
+          hasRentalData: !!market.rentalData,
+          saleDataKeys: market.saleData ? Object.keys(market.saleData) : [],
+          rentalDataKeys: market.rentalData ? Object.keys(market.rentalData) : []
+        } : 'No market data found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
 
         if (!market || (!market.saleData && !market.rentalData)) {
           return createErrorResponse("No market data found for the specified location");
@@ -492,7 +537,19 @@ server.tool(
         return createErrorResponse("No property value data found");
       }
       
-
+      // Debug logging to stderr
+      console.error('[get_property_value] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        avmData: avm ? {
+          price: avm.price,
+          priceRangeLow: avm.priceRangeLow,
+          priceRangeHigh: avm.priceRangeHigh,
+          hasComparables: !!(avm.comparables && avm.comparables.length > 0),
+          comparablesCount: avm.comparables ? avm.comparables.length : 0
+        } : 'No AVM data found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
       
       let resultText = `💰 Estimated Value: ${avm.price ? `$${Number(avm.price).toLocaleString()}` : 'N/A'}`;
       const range = avm.priceRangeLow && avm.priceRangeHigh 
@@ -575,7 +632,24 @@ server.tool(
         return createErrorResponse("No rent estimate data found");
       }
       
-
+      // Debug logging to stderr
+      console.error('[get_rent_estimates] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        rentData: rentData ? {
+          address: rentData.address,
+          propertyType: rentData.propertyType,
+          bedrooms: rentData.bedrooms,
+          bathrooms: rentData.bathrooms,
+          squareFootage: rentData.squareFootage,
+          rent: rentData.rent,
+          rentRangeLow: rentData.rentRangeLow,
+          rentRangeHigh: rentData.rentRangeHigh,
+          hasComparables: !!(rentData.comparables && rentData.comparables.length > 0),
+          comparablesCount: rentData.comparables ? rentData.comparables.length : 0
+        } : 'No rent data found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
 
       // Format the response
       let resultText = `🏠 **Rent Estimate Results**\n\n`;
@@ -664,7 +738,23 @@ server.tool(
 
       const listings = result.data as any[];
       
-
+      // Debug logging to stderr
+      console.error('[get_sale_listings] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        dataLength: listings.length,
+        firstListing: listings[0] ? {
+          id: listings[0].id,
+          address: listings[0].formattedAddress,
+          propertyType: listings[0].propertyType,
+          price: listings[0].price,
+          status: listings[0].status,
+          bedrooms: listings[0].bedrooms,
+          bathrooms: listings[0].bathrooms,
+          squareFootage: listings[0].squareFootage
+        } : 'No listings found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
       
       const summary = `Found ${listings.length} sale listings`;
       
@@ -707,7 +797,24 @@ server.tool(
         return createErrorResponse("No property details found");
       }
       
-
+      // Debug logging to stderr
+      console.error('[get_property_details] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        propertyData: property ? {
+          id: property.id,
+          address: property.formattedAddress,
+          propertyType: property.propertyType,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          squareFootage: property.squareFootage,
+          lastSalePrice: property.lastSalePrice,
+          lastSaleDate: property.lastSaleDate,
+          hasHistory: !!(property.history && Object.keys(property.history).length > 0),
+          historyKeys: property.history ? Object.keys(property.history) : []
+        } : 'No property data found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
 
       // Format property details
       const propertyInfo = formatPropertyInfo(property);
@@ -747,7 +854,23 @@ server.tool(
 
       const listings = result.data as any[];
       
-
+      // Debug logging to stderr
+      console.error('[get_rental_listings] API result:', JSON.stringify({
+        success: result.success,
+        error: result.error,
+        dataLength: listings.length,
+        firstListing: listings[0] ? {
+          id: listings[0].id,
+          address: listings[0].formattedAddress,
+          propertyType: listings[0].propertyType,
+          price: listings[0].price,
+          status: listings[0].status,
+          bedrooms: listings[0].bedrooms,
+          bathrooms: listings[0].bathrooms,
+          squareFootage: listings[0].squareFootage
+        } : 'No listings found',
+        callsRemaining: result.callsRemaining
+      }, null, 2));
       
       const summary = `Found ${listings.length} rental listings`;
       
@@ -813,23 +936,36 @@ server.tool(
 
 async function main() {
   try {
+    // Debug logging to stderr (doesn't interfere with MCP protocol)
+    console.error('[SERVER] Starting Rentcast MCP Server...');
+    console.error(`[SERVER] API Calls Limit: ${config.maxApiCalls}`);
+    console.error(`[SERVER] API Key: ${config.rentcastApiKey.substring(0, 8)}...`);
+    console.error(`[SERVER] Base URL: ${config.rentcastBaseUrl}`);
+    
     const transport = new StdioServerTransport();
     await server.connect(transport);
+    
+    console.error('[SERVER] Rentcast MCP Server started successfully!');
+    console.error('[SERVER] Available tools: search_properties, get_random_properties, analyze_market, get_property_value, get_rent_estimates, get_sale_listings, get_rental_listings, get_property_details, get_server_status');
   } catch (error) {
+    console.error('[SERVER] Failed to start server:', error);
     process.exit(1);
   }
 }
 
 // Handle process termination
 process.on('SIGINT', () => {
+  console.error('\n[SERVER] Shutting down Rentcast MCP Server...');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
+  console.error('\n[SERVER] Shutting down Rentcast MCP Server...');
   process.exit(0);
 });
 
 // Start the server
 main().catch((error) => {
+  console.error('[SERVER] Server error:', error);
   process.exit(1);
 });
